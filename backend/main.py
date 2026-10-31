@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import StreamingResponse
 
 loaded = load_dotenv()
 
@@ -38,10 +39,22 @@ client = genai.Client()
 
 @app.post("/chat")
 def chat(request: Request):
-    interaction = client.interactions.create(
-    model="gemini-3.5-flash-lite",
-    input=  request.query,
-    system_instruction=system_prompt
+
+    def generate():
+        stream = client.interactions.create(
+            model="gemini-3.5-flash-lite",
+            input=request.query,
+            stream=True,
+        )
+
+        for event in stream:
+            if (
+                event.event_type == "step.delta"
+                and event.delta.type == "text"
+            ):
+                yield event.delta.text
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/plain",
     )
-    return {"message": interaction.output_text}
-    

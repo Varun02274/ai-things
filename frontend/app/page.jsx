@@ -23,17 +23,35 @@ export default function Home() {
         query: input
       })
     })
-    
+
     let response = await responsePromise
-    let data = await response.json()
+
     setLoading(false)
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      setChat((prev) => prev + chunk);
+    }
+
     setInput("")
-    setChat(data.message)
+
 
   }
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center">
       <h1 className='fixed top-6 text-4xl'>Ai thing</h1>
+      {!loading && !chat && (
+        <h2 className="text-3xl sm:text-4xl mb-8 text-center">
+          How can I help you today?
+        </h2>
+      )}
       {loading && <TailSpin
         visible={true}
         height="80"
@@ -42,7 +60,7 @@ export default function Home() {
         ariaLabel="tail-spin-loading"
         radius="1"
         wrapperStyle={{}}
-        wrapperClass=""
+        wrapperClass="mb-8"
       />}
       {!loading && chat && <div className="mt-24 mb-4 w-full max-w-3xl
                     max-h-[60vh] overflow-y-auto p-4">
