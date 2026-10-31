@@ -26,8 +26,7 @@ client = genai.Client()
 def chat(request: Request):
     interaction = client.interactions.create(
     model="gemini-3.5-flash-lite",
-    input=  request.query,
-    system_instruction=system_prompt
+    input= request.query
     )
     return {"message": interaction.output_text}
     
