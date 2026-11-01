@@ -34,6 +34,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center">
       <h1 className='fixed top-6 text-4xl'>Ai thing</h1>
+      {!loading && !chat && <h2 className="text-2xl mb-8">how can i help you today?</h2>}
       {loading && <TailSpin
         visible={true}
         height="80"
@@ -42,7 +43,7 @@ export default function Home() {
         ariaLabel="tail-spin-loading"
         radius="1"
         wrapperStyle={{}}
-        wrapperClass=""
+        wrapperClass="mb-8"
       />}
       {!loading && chat && <div className="mt-24 mb-4 w-full max-w-3xl
                     max-h-[60vh] overflow-y-auto p-4">
